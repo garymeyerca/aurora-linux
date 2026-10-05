@@ -62,6 +62,7 @@
 #include <linux/dma-mapping.h>
 #include <linux/dma-resv.h>
 #include <linux/errname.h>
+#include <linux/soc/apple/pmp.h>
 #include <linux/ethtool.h>
 #include <linux/fdtable.h>
 #include <linux/file.h>
@@ -102,6 +103,7 @@
 #include <linux/soc/apple/rtkit.h>
 #include <linux/sys_soc.h>
 #include <linux/task_work.h>
+#include <linux/thermal.h>
 #include <linux/tracepoint.h>
 #include <linux/usb.h>
 #include <linux/wait.h>

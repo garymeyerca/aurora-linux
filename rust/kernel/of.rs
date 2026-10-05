@@ -168,7 +168,7 @@ impl Node {
 
     /// Find a child by its name and return it, or None if not found.
     #[allow(unused_variables)]
-    pub(crate) fn get_child_by_name(&self, name: &CStr) -> Option<Node> {
+    pub fn get_child_by_name(&self, name: &CStr) -> Option<Node> {
         #[cfg(not(CONFIG_OF))]
         {
             None

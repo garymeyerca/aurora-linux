@@ -106,6 +106,21 @@ pub struct RtKit<T: Operations> {
 // callback context points back to this Rust wrapper, so moving it is safe.
 impl<T: Operations> Unpin for RtKit<T> {}
 
+/// Passive endpoint discovery result for experimental GPU backends.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub struct EpmapSnapshot {
+    pub raw_hello: u64,
+    pub hello_min_version: u16,
+    pub hello_max_version: u16,
+    pub endpoints: [u64; 4],
+}
+
+impl EpmapSnapshot {
+    pub fn has_endpoint(&self, endpoint: u8) -> bool {
+        self.endpoints[endpoint as usize / 64] & (1u64 << (endpoint % 64)) != 0
+    }
+}
+
 unsafe extern "C" fn crashed_callback<T: Operations>(
     cookie: *mut core::ffi::c_void,
     crashlog: *const core::ffi::c_void,
@@ -282,6 +297,29 @@ impl<T: Operations> RtKit<T> {
         to_result(unsafe { bindings::apple_rtkit_boot(self.rtk) })
     }
 
+    /// G17 policy is unavailable in this experimental M3 port.
+    pub fn new_g17p(
+        _dev: &device::Device,
+        _mbox_name: Option<&'static CStr>,
+        _mbox_idx: usize,
+        _data: T::Data,
+    ) -> Result<Self> {
+        Err(crate::error::Error::from_errno(-(bindings::EOPNOTSUPP as i32)))
+    }
+
+    pub fn new_epmap_only(
+        _dev: &device::Device,
+        _mbox_name: Option<&'static CStr>,
+        _mbox_idx: usize,
+        _data: T::Data,
+    ) -> Result<Self> {
+        Err(crate::error::Error::from_errno(-(bindings::EOPNOTSUPP as i32)))
+    }
+
+    pub fn discover_epmap(self: Pin<&mut Self>) -> Result<EpmapSnapshot> {
+        Err(crate::error::Error::from_errno(-(bindings::EOPNOTSUPP as i32)))
+    }
+
     /// Starts a non-system endpoint.
     pub fn start_endpoint(self: Pin<&mut Self>, endpoint: u8) -> Result {
         // SAFETY: `rtk` is valid per the type invariant.
@@ -299,6 +337,16 @@ impl<T: Operations> RtKit<T> {
     /// Checks if an endpoint is present
     pub fn has_endpoint(self: Pin<&mut Self>, endpoint: u8) -> bool {
         unsafe { bindings::apple_rtkit_has_endpoint(self.rtk, endpoint) }
+    }
+
+    pub fn is_running(&self) -> bool {
+        // SAFETY: The valid RTKit pointer is only read by this C helper.
+        unsafe { bindings::apple_rtkit_is_running(self.rtk) }
+    }
+
+    pub fn is_crashed(&self) -> bool {
+        // SAFETY: The valid RTKit pointer is only read by this C helper.
+        unsafe { bindings::apple_rtkit_is_crashed(self.rtk) }
     }
 }
 
