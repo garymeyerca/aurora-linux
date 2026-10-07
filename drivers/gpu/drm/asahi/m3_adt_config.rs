@@ -766,6 +766,16 @@ fn build_images(
         let a38 = read_u32(&hwdata, offset_of!(B, unk_460))?;
         let a40 = read_u32(&hwdata, offset_of!(B, unk_468))?;
         dev_info!(dev, "M3: HwDataB +0xa38 {:#x}, +0xa40 {:#x}\n", a38, a40);
+        // Prepared host image, not a post-firmware-init readback. Keep the two-word
+        // line above for existing collectors; log the full tuple requested in #96.
+        let a50 = read_u32(&hwdata, offset_of!(B, unk_478))?;
+        let a58 = read_u32(&hwdata, offset_of!(B, unk_480))?;
+        let a60 = read_u32(&hwdata, offset_of!(B, unk_488))?;
+        dev_info!(
+            dev,
+            "M3: HwDataB host image +0xa38 {:#x}, +0xa40 {:#x}, +0xa50 {:#x}, +0xa58 {:#x}, +0xa60 {:#x}\n",
+            a38, a40, a50, a58, a60
+        );
         if a38 == 0 || a40 == 0 {
             dev_err!(
                 dev,
